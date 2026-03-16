@@ -108,7 +108,7 @@ tbody tr:hover td{background:rgba(247,240,230,.6);}
 .time-field{display:flex;flex-direction:column;gap:4px;}
 .time-field label{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
 .time-field input[type=time]{width:110px;padding:7px 9px;border:1px solid var(--borda);border-radius:7px;font-size:13px;background:var(--creme);color:var(--texto);font-family:'Lato',sans-serif;outline:none;}
-.prow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(62,32,16,.07);flex-wrap:wrap;}
+.prow{display:flex;flex-direction:column;gap:10px;padding:12px 0;border-bottom:1px solid rgba(62,32,16,.07);}
 .prow:last-child{border-bottom:none;}
 .pinfo{flex:1;min-width:140px;}
 .pname{font-size:14px;font-weight:700;color:var(--marrom);}
@@ -569,6 +569,333 @@ body.kiosk-mode .cam-video { width: 320px; height: 240px; }
 .kiosk-toggle { font-size: 11px; padding: 5px 10px; border-radius: 6px; background: rgba(232,194,122,.15); border: 1px solid rgba(232,194,122,.25); color: var(--dourado-claro); cursor: pointer; font-family: 'Lato', sans-serif; }
 .kiosk-toggle:hover { background: rgba(232,194,122,.25); }
 
+
+/* ══ PWA INSTALL BANNER ══ */
+
+
+
+/* ══════════════════════════════════════════
+   RESPONSIVO MOBILE — TODAS AS TELAS
+══════════════════════════════════════════ */
+
+/* BASE MOBILE */
+* { box-sizing: border-box; }
+
+/* HEADER mobile */
+@media (max-width: 480px) {
+  .hdr { padding: 0 .75rem; height: 58px; }
+  .hdr-logo img { height: 40px; width: 40px; }
+  .hdr-name { font-size: 15px; }
+  .hdr-sub { display: none; }
+  .hdr-clock { display: none; }
+  .hdr-right { gap: 8px; }
+  .kiosk-toggle { font-size: 10px; padding: 4px 8px; }
+  .logout-btn span { display: none; }
+}
+
+/* NAV mobile — scroll horizontal */
+@media (max-width: 600px) {
+  .nav-bar { padding: 0; }
+  .nav-btn {
+    font-size: 11px;
+    padding: .6rem .75rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .main { padding: .75rem .5rem; }
+}
+
+/* TELA DE ACESSO mobile */
+@media (max-width: 480px) {
+  #welcome-screen { padding: 1.25rem 1rem; }
+  .ws-content { padding: 1.5rem 1rem; }
+  .ws-clock { font-size: 42px; letter-spacing: -1px; }
+  .ws-date { font-size: 12px; margin-bottom: 1.5rem; }
+  .ws-logo { width: 80px; height: 80px; border-radius: 18px; }
+  .ws-logo-wrap { margin-bottom: 1rem; }
+  .ws-empresa { font-size: 22px; margin-bottom: .3rem; }
+  .ws-tagline { font-size: 11px; margin-bottom: 1.5rem; }
+  .ws-divider { margin-bottom: 1.25rem; }
+  .ws-field input { padding: 12px 14px; font-size: 16px; }
+  .ws-btn { padding: 14px; font-size: 15px; }
+  .ws-footer { font-size: 10px; bottom: 1rem; }
+}
+
+/* CARDS mobile */
+@media (max-width: 600px) {
+  .card { padding: 1rem; border-radius: 10px; }
+  .card-hdr { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .card-hdr > div:last-child { width: 100%; }
+  .card-hdr button, .card-hdr .btn { width: 100%; justify-content: center; }
+}
+
+/* DASHBOARD — métricas mobile */
+@media (max-width: 480px) {
+  .mgrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  .metric { padding: .75rem .5rem; }
+  .mval { font-size: 28px; }
+  .mlbl { font-size: 11px; }
+}
+
+/* DASHBOARD — gráficos mobile */
+@media (max-width: 600px) {
+  #page-dashboard > div[style*="grid-template-columns:1fr 1fr"] {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+}
+
+/* TABELA mobile — scroll horizontal */
+@media (max-width: 600px) {
+  .twrap { -webkit-overflow-scrolling: touch; }
+  table { min-width: 500px; }
+  th, td { padding: .5rem .6rem; font-size: 12px; white-space: nowrap; }
+}
+
+/* KIOSK mobile */
+@media (max-width: 480px) {
+  .kiosk-card { padding: 1.25rem .75rem; border-radius: 12px; }
+  .kiosk-title { font-size: 18px; }
+  .kiosk-sub { font-size: 12px; }
+  .cam-wrap { max-width: 100%; }
+  .cam-video { width: 100% !important; max-width: 280px; height: auto !important; }
+  .numpad { max-width: 100%; gap: 8px; }
+  .nkey { font-size: 20px; padding: .8rem; }
+  .pin-display { gap: 12px; margin-bottom: 1rem; }
+  .pin-dot { width: 14px; height: 14px; }
+  .method-tabs { gap: 4px; }
+  .mtab { font-size: 12px; padding: .5rem .75rem; }
+  .fp-icon { width: 80px; height: 80px; }
+}
+
+/* KIOSK resultado mobile */
+@media (max-width: 480px) {
+  #kiosk-result { padding: 1rem .75rem; }
+  #kiosk-result .kiosk-nome { font-size: 20px; }
+}
+
+/* CADASTRO mobile */
+@media (max-width: 600px) {
+  .cad-grid { grid-template-columns: 1fr !important; }
+  .fgrid { grid-template-columns: 1fr !important; }
+  [style*="grid-template-columns:1fr 1fr"] { 
+    grid-template-columns: 1fr !important; 
+  }
+  .cam-cad-video { width: 100% !important; max-width: 260px; height: auto !important; }
+  .numpad-sm { max-width: 100%; }
+}
+
+/* CADASTRO empresa mobile */
+@media (max-width: 600px) {
+  .horario-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  [style*="display:flex;gap:1.5rem"] {
+    flex-direction: column !important;
+  }
+}
+
+/* RELATÓRIO mobile */
+@media (max-width: 600px) {
+  #page-relatorio .card-hdr > div {
+    flex-direction: column;
+    width: 100%;
+  }
+  #page-relatorio select,
+  #page-relatorio input[type=date] {
+    width: 100%;
+  }
+}
+
+/* OPERADORES mobile */
+@media (max-width: 480px) {
+  .op-card { flex-wrap: wrap; }
+  .op-card > div:last-child { width: 100%; display: flex; gap: 8px; }
+  .op-card > div:last-child button { flex: 1; }
+  .perm-grid { grid-template-columns: 1fr 1fr !important; }
+}
+
+/* FORMULÁRIOS mobile — botões grandes para toque */
+@media (max-width: 600px) {
+  .btn, .btn-ol, .btn-dk, .btn-del, .btn-gd {
+    min-height: 40px;
+    font-size: 13px;
+  }
+  input, select, textarea {
+    font-size: 16px !important; /* Evita zoom automático no iOS */
+  }
+}
+
+/* PWA banner mobile */
+@media (max-width: 480px) {
+}
+
+/* SESSION TIMER mobile */
+@media (max-width: 480px) {
+  #session-timer { bottom: 4rem; right: .5rem; font-size: 11px; }
+}
+
+/* Tela login modal (troca senha) mobile */
+@media (max-width: 480px) {
+  .troca-box { padding: 1.5rem 1rem; border-radius: 12px; }
+  .login-box { padding: 1.75rem 1rem; }
+}
+
+@media(max-width:700px){.charts-grid{grid-template-columns:1fr!important;}}
+@media(max-width:600px){.emp-grid{flex-direction:column!important;}.emp-grid .empresa-logo-placeholder,.emp-grid .empresa-logo-preview{align-self:center;}}
+
+/* ══════════════════════════════════════════
+   MOBILE FIX — ESPECÍFICO PARA OS PROBLEMAS
+══════════════════════════════════════════ */
+
+/* HEADER — compacto no mobile */
+@media (max-width: 600px) {
+  .hdr {
+    height: auto !important;
+    min-height: 56px;
+    padding: 8px 12px !important;
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+  .hdr-logo { gap: 8px; min-width: 0; }
+  .hdr-logo img { height: 38px !important; width: 38px !important; flex-shrink: 0; }
+  .hdr-name { font-size: 14px !important; white-space: nowrap; }
+  .hdr-sub { display: none !important; }
+  .hdr-clock { display: none !important; }
+  .hdr-right { gap: 6px; flex-shrink: 0; }
+  .kiosk-toggle { font-size: 10px !important; padding: 4px 7px !important; white-space: nowrap; }
+  .logout-btn { padding: 5px 8px !important; font-size: 10px !important; }
+  .logout-btn svg { width: 12px; height: 12px; }
+  .nav-perfil-badge { font-size: 9px !important; padding: 2px 6px !important; }
+}
+
+/* NAV — scroll horizontal sem wrap */
+@media (max-width: 600px) {
+  .nav-bar {
+    display: flex !important;
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap !important;
+  }
+  .nav-bar::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    font-size: 10px !important;
+    padding: 10px 12px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+}
+
+/* MAIN — padding menor */
+@media (max-width: 600px) {
+  .main { padding: .6rem .5rem !important; }
+  .card { padding: .85rem .75rem !important; }
+}
+
+/* PROW — layout de ponto em coluna */
+@media (max-width: 600px) {
+  .prow {
+    display: grid !important;
+    grid-template-columns: auto 1fr !important;
+    gap: 8px !important;
+    padding: 12px 0 !important;
+  }
+  .prow > .av,
+  .prow > img { grid-row: 1; grid-column: 1; }
+  .prow > .pinfo { grid-row: 1; grid-column: 2; }
+  .prow > .time-field {
+    grid-column: 1 / -1;
+    display: inline-flex !important;
+    flex-direction: column;
+    width: auto;
+  }
+  /* Container dos 4 campos de hora */
+  .prow-times {
+    grid-column: 1 / -1;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px;
+    width: 100%;
+  }
+  .time-field input[type=time] {
+    width: 100% !important;
+    font-size: 14px !important;
+    padding: 8px !important;
+  }
+  .time-field label { font-size: 10px !important; }
+}
+
+/* CARD-HDR — empilhar no mobile */
+@media (max-width: 600px) {
+  .dnav { 
+    display: flex !important;
+    gap: 4px !important;
+  }
+  .dnav button { padding: 6px 10px !important; font-size: 11px !important; }
+  .dlbl { font-size: 12px !important; min-width: 100px !important; text-align: center; }
+  .card-hdr { gap: 8px; }
+  .card-hdr .btn { font-size: 12px !important; padding: 8px 14px !important; }
+}
+
+/* MÉTRICAS — 2 colunas no mobile */
+@media (max-width: 480px) {
+  .mgrid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+  .metric { padding: .7rem .6rem !important; }
+  .mval { font-size: 26px !important; }
+  .mlbl { font-size: 10px !important; }
+}
+
+/* GRÁFICOS — empilhados no mobile */
+@media (max-width: 700px) {
+  .charts-grid,
+  div[style*="grid-template-columns:1fr 1fr"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+}
+
+/* FUNCIONÁRIOS tabela — scroll */
+@media (max-width: 600px) {
+  .twrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { min-width: 480px; }
+}
+
+/* CADASTRO grid — 1 coluna */
+@media (max-width: 700px) {
+  .cad-grid { grid-template-columns: 1fr !important; }
+  .fgrid { grid-template-columns: 1fr !important; }
+}
+
+/* FORMULÁRIOS — font-size 16px evita zoom iOS */
+@media (max-width: 600px) {
+  input, select, textarea { font-size: 16px !important; }
+}
+
+/* TELA DE ACESSO mobile */
+@media (max-width: 480px) {
+  .ws-clock { font-size: 42px !important; }
+  .ws-logo { width: 80px !important; height: 80px !important; }
+  .ws-empresa { font-size: 20px !important; }
+  .ws-content { padding: 1.5rem 1rem !important; }
+  .ws-field input { padding: 12px 14px !important; }
+  .ws-btn { padding: 14px !important; }
+}
+
+/* KIOSK mobile */
+@media (max-width: 480px) {
+  .kiosk-card { padding: 1rem .75rem !important; }
+  .kiosk-title { font-size: 18px !important; }
+  .cam-video { width: 100% !important; height: auto !important; }
+  .numpad { max-width: 100% !important; gap: 8px; }
+  .nkey { height: 52px !important; font-size: 20px !important; }
+  .method-tabs { gap: 2px; }
+  .mtab { font-size: 11px !important; padding: 9px 6px !important; }
+}
+
 </style>
 </head>
 <body>
@@ -576,7 +903,7 @@ body.kiosk-mode .cam-video { width: 320px; height: 240px; }
 <!-- HEADER -->
 <header class="hdr">
   <div class="hdr-logo">
-    <img src="data:image/jpeg;base64,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" alt="Cerro Azul">
+    <img src="data:image/jpeg;base64,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" alt="Cerro Azul">
     <div>
       <div class="hdr-name">Cerro Azul</div>
       <div class="hdr-sub">Padaria · Confeitaria · Restaurante</div>
@@ -652,7 +979,12 @@ body.kiosk-mode .cam-video { width: 320px; height: 240px; }
     </div>
 
   </div>
-  <div class="ws-footer">Sistema de Ponto Eletrônico &mdash; Cerro Azul &copy; 2025</div>
+  <div class="ws-footer">
+    Sistema de Ponto Eletrônico &mdash; Cerro Azul &copy; 2025<br>
+    <span style="color:rgba(200,150,62,.5);font-size:10px;letter-spacing:.12em;">
+      DESENVOLVIDO POR KLEBER
+    </span>
+  </div>
 </div>
 
 <!-- ══ MODAL TROCAR SENHA ══ -->
@@ -671,29 +1003,8 @@ body.kiosk-mode .cam-video { width: 320px; height: 240px; }
 </div>
 
 <div id="session-timer">⏰ Sessão expira em <span id="timer-count">5:00</span></div>
-<div class="main">
-<div id="alert-area"></div>
 
-<!-- ══════════════════════════════
-     BATER PONTO — KIOSK
-══════════════════════════════ -->
-<div id="page-bater">
-  <div class="kiosk-wrap">
-    <div class="kiosk-card">
-      <div class="kiosk-title">Registrar Ponto</div>
-      <div class="kiosk-sub">Identifique-se para registrar sua entrada ou saída</div>
-      <div class="method-tabs">
-        <button class="mtab active" id="mtab-face" onclick="switchMethod('face')">Rosto</button>
-        <button class="mtab"        id="mtab-pin"  onclick="switchMethod('pin')">PIN</button>
-        <button class="mtab"        id="mtab-bio"  onclick="switchMethod('bio')">Digital</button>
-      </div>
-
-      <!-- FACIAL -->
-      <div id="method-face">
-        <div class="cam-wrap">
-          <video id="cam-video" class="cam-video" autoplay playsinline muted></video>
-        </div>
-        <div class="cam-status" id="cam-status">Iniciando câmera...</div>
+  
         <div id="face-model-msg" style="font-size:12px;color:var(--muted);margin-bottom:.5rem">Carregando IA facial...</div>
         <button class="btn btn-dk" id="btn-scan-face" onclick="scanFace()">🔍 Reconhecer rosto</button>
         <div style="font-size:11px;color:var(--muted);margin-top:.5rem;">ou aguarde o reconhecimento automático</div>
@@ -754,7 +1065,7 @@ body.kiosk-mode .cam-video { width: 320px; height: 240px; }
   </div>
 
   <!-- Gráficos -->
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;">
+  <div class="charts-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;">
     <div class="card" style="padding:1.25rem;">
       <div class="stitle" style="margin-bottom:1rem;">Presenças nos últimos 7 dias</div>
       <canvas id="chart-semana" height="200"></canvas>
@@ -1020,7 +1331,7 @@ body.kiosk-mode .cam-video { width: 320px; height: 240px; }
     </div>
 
     <!-- Logo + campos principais lado a lado -->
-    <div style="display:flex;gap:1.5rem;align-items:flex-start;flex-wrap:wrap;margin-bottom:1.25rem;">
+    <div class="emp-grid" style="display:flex;gap:1.5rem;align-items:flex-start;flex-wrap:wrap;margin-bottom:1.25rem;">
       <!-- Logo upload -->
       <div style="display:flex;flex-direction:column;align-items:center;gap:.75rem;">
         <div class="empresa-logo-placeholder" id="empresa-logo-placeholder" onclick="document.getElementById('empresa-logo-input').click()">
@@ -1811,12 +2122,17 @@ function renderPonto(){
     const r=registros.find(x=>x.fid===f.id&&x.data===pontoDate)||{};
     const ini=f.nome.split(' ').filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase();
     const avatar=f.fotoPrev?`<img src="${f.fotoPrev}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid var(--borda);">`:`<div class="av">${ini}</div>`;
-    return`<div class="prow">${avatar}
-      <div class="pinfo"><div class="pname">${f.nome}</div><div class="psec">${f.setor}</div></div>
-      <div class="time-field"><label>Entrada</label><input type="time" data-fid="${f.id}" data-c="entrada" value="${r.entrada||''}"></div>
-      <div class="time-field"><label>Saída Int.</label><input type="time" data-fid="${f.id}" data-c="saidaInt" value="${r.saidaInt||''}"></div>
-      <div class="time-field"><label>Retorno</label><input type="time" data-fid="${f.id}" data-c="retornoInt" value="${r.retornoInt||''}"></div>
-      <div class="time-field"><label>Saída</label><input type="time" data-fid="${f.id}" data-c="saida" value="${r.saida||''}"></div>
+    return`<div class="prow">
+      <div style="display:flex;align-items:center;gap:10px;grid-column:1/-1;width:100%;">
+        ${avatar}
+        <div class="pinfo"><div class="pname">${f.nome}</div><div class="psec">${f.setor}</div></div>
+      </div>
+      <div class="prow-times" style="display:flex;gap:12px;flex-wrap:wrap;grid-column:1/-1;width:100%;">
+        <div class="time-field"><label>Entrada</label><input type="time" data-fid="${f.id}" data-c="entrada" value="${r.entrada||''}"></div>
+        <div class="time-field"><label>Saída Int.</label><input type="time" data-fid="${f.id}" data-c="saidaInt" value="${r.saidaInt||''}"></div>
+        <div class="time-field"><label>Retorno</label><input type="time" data-fid="${f.id}" data-c="retornoInt" value="${r.retornoInt||''}"></div>
+        <div class="time-field"><label>Saída</label><input type="time" data-fid="${f.id}" data-c="saida" value="${r.saida||''}"></div>
+      </div>
     </div>`;
   }).join('');
 }
@@ -2647,6 +2963,9 @@ function calcHExtra(r, f){
 
 // Alias para compatibilidade
 function entrarNoSistema(){ fazerLogin(); }
+
+
+
 
 renderDash();
 </script>
