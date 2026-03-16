@@ -6,6 +6,7 @@
 <title>Cerro Azul | Ponto Eletrônico</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 <style>
 :root{
@@ -556,6 +557,18 @@ to{opacity:0;transform:translateY(-8px);}}
   .ws-logo { width: 88px; height: 88px; }
 }
 
+
+/* ══ MODO QUIOSQUE ══ */
+body.kiosk-mode .hdr { padding: .75rem 1.5rem; }
+body.kiosk-mode .nav-bar { display: none; }
+body.kiosk-mode .main { padding: 0; }
+body.kiosk-mode #page-bater { height: calc(100vh - 56px); display: flex; align-items: center; justify-content: center; }
+body.kiosk-mode .kiosk-wrap { width: 100%; max-width: 500px; }
+body.kiosk-mode .kiosk-card { min-height: 500px; }
+body.kiosk-mode .cam-video { width: 320px; height: 240px; }
+.kiosk-toggle { font-size: 11px; padding: 5px 10px; border-radius: 6px; background: rgba(232,194,122,.15); border: 1px solid rgba(232,194,122,.25); color: var(--dourado-claro); cursor: pointer; font-family: 'Lato', sans-serif; }
+.kiosk-toggle:hover { background: rgba(232,194,122,.25); }
+
 </style>
 </head>
 <body>
@@ -571,6 +584,7 @@ to{opacity:0;transform:translateY(-8px);}}
   </div>
   <div class="hdr-right">
     <div class="hdr-clock" id="clock"></div>
+    <button class="kiosk-toggle" id="btn-quiosque" onclick="toggleQuiosque()" title="Modo quiosque para tablet">⬛ Quiosque</button>
     <span id="header-perfil" class="nav-perfil-badge" style="display:none"></span>
     <button id="logout-btn" class="logout-btn" onclick="fazerLogout()" title="Sair do sistema">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -600,7 +614,8 @@ to{opacity:0;transform:translateY(-8px);}}
   <div class="ws-content">
 
     <!-- Relógio em tempo real -->
-    <div class="ws-clock" id="ws-clock">00:00</div>
+    <div class="ws-clock" id="ws-clock" >00:00</div>
+    <div id="welcome-greeting" style="display:none"></div>
     <div class="ws-date" id="ws-date">carregando...</div>
 
     <!-- Logo com glow animado -->
@@ -680,7 +695,8 @@ to{opacity:0;transform:translateY(-8px);}}
         </div>
         <div class="cam-status" id="cam-status">Iniciando câmera...</div>
         <div id="face-model-msg" style="font-size:12px;color:var(--muted);margin-bottom:.5rem">Carregando IA facial...</div>
-        <button class="btn btn-dk" onclick="scanFace()">Reconhecer rosto</button>
+        <button class="btn btn-dk" id="btn-scan-face" onclick="scanFace()">🔍 Reconhecer rosto</button>
+        <div style="font-size:11px;color:var(--muted);margin-top:.5rem;">ou aguarde o reconhecimento automático</div>
       </div>
 
       <!-- PIN -->
@@ -727,6 +743,35 @@ to{opacity:0;transform:translateY(-8px);}}
     <div class="metric"><div class="mval" id="m-pres">0</div><div class="mlbl">Presentes hoje</div></div>
     <div class="metric"><div class="mval" id="m-set">0</div><div class="mlbl">Setores</div></div>
     <div class="metric"><div class="mval" id="m-reg">0</div><div class="mlbl">Registros hoje</div></div>
+    <div class="metric" id="m-atraso-card" style="cursor:pointer" onclick="showTab('relatorio')">
+      <div class="mval" id="m-atraso" style="color:#8B2E20">0</div>
+      <div class="mlbl">⚠ Atrasos hoje</div>
+    </div>
+    <div class="metric" id="m-falta-card" style="cursor:pointer" onclick="showTab('relatorio')">
+      <div class="mval" id="m-falta" style="color:#8B2E20">0</div>
+      <div class="mlbl">❌ Faltas hoje</div>
+    </div>
+  </div>
+
+  <!-- Gráficos -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;">
+    <div class="card" style="padding:1.25rem;">
+      <div class="stitle" style="margin-bottom:1rem;">Presenças nos últimos 7 dias</div>
+      <canvas id="chart-semana" height="200"></canvas>
+    </div>
+    <div class="card" style="padding:1.25rem;">
+      <div class="stitle" style="margin-bottom:1rem;">Funcionários por setor</div>
+      <canvas id="chart-setores" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- Notificações de atrasos/faltas -->
+  <div id="notif-panel" class="card" style="margin-bottom:1.25rem;display:none;">
+    <div class="card-hdr">
+      <div class="stitle" style="color:#8B2E20;">⚠ Alertas do dia</div>
+      <button class="btn-ol" style="font-size:11px;" onclick="document.getElementById('notif-panel').style.display='none'">Fechar</button>
+    </div>
+    <div id="notif-list"></div>
   </div>
   <div class="card">
     <div class="card-hdr">
@@ -775,7 +820,7 @@ to{opacity:0;transform:translateY(-8px);}}
       <button class="btn btn-dk" onclick="showTab('cadastro')">+ Novo funcionário</button>
     </div>
     <div class="frow">
-      <input class="sbar" id="srch" placeholder="Buscar por nome ou CPF..." oninput="filtrarFunc()">
+      <input class="sbar" id="func-search" name="func-search" placeholder="Buscar por nome ou CPF..." oninput="filtrarFunc()">
       <select id="flt-set" class="iinput" onchange="filtrarFunc()"><option value="">Todos os setores</option></select>
     </div>
     <div class="twrap">
@@ -1279,7 +1324,7 @@ async function startCam(){
     setCamSt('Câmera pronta. Clique em Reconhecer rosto.','');
   }catch(e){setCamSt('Câmera indisponível: '+e.message,'err');}
 }
-function stopCam(){if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}}
+function stopCam(){pararAutoScan();if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}}
 function setCamSt(msg,tipo){const el=document.getElementById('cam-status');if(!el)return;el.textContent=msg;el.className='cam-status'+(tipo?' '+tipo:'');}
 
 // ══════════════════════════════════════════
@@ -1290,7 +1335,12 @@ async function scanFace(){
   const vid=document.getElementById('cam-video');
   if(!vid.srcObject){setCamSt('Câmera não iniciada.','err');return;}
   const comFoto=funcionarios.filter(f=>f.fotoDescriptor);
-  if(!comFoto.length){setCamSt('Nenhum funcionário com foto cadastrada.','err');return;}
+  if(!comFoto.length){
+    // Sem descriptores — tenta PIN automaticamente
+    setCamSt('Nenhum funcionário com reconhecimento facial. Use o PIN.','warn');
+    setTimeout(()=>switchMethod('pin'),2000);
+    return;
+  }
   setCamSt('Analisando rosto...','scan');
   try{
     const det=await faceapi.detectSingleFace(vid,new faceapi.TinyFaceDetectorOptions({inputSize:224,scoreThreshold:0.4})).withFaceLandmarks(true).withFaceDescriptor();
@@ -1334,11 +1384,17 @@ async function capturarFoto(){
     const dataUrl=canvas.toDataURL('image/jpeg',0.85);
     window._tempFotoDataUrl=dataUrl;
     window._tempFotoDescriptor=null;
-    document.getElementById('foto-preview').src=dataUrl;
-    document.getElementById('foto-preview').style.display='block';
+    // Atualiza preview
+    const prev=document.getElementById('foto-preview');
+    prev.src=dataUrl;prev.style.display='block';
     document.getElementById('foto-placeholder').style.display='none';
-    document.getElementById('cam-cad-st').textContent='✓ Foto salva (sem reconhecimento facial)';
-    fecharCamCad();
+    // Atualiza status e badge — ESSENCIAL para destravar o salvar
+    const fst=document.getElementById('foto-status');
+    if(fst){fst.textContent='✓ Foto capturada — salve o funcionário';fst.className='foto-status ok';}
+    const s2=document.getElementById('step2-badge');
+    if(s2) s2.classList.add('done');
+    document.getElementById('cam-cad-st').textContent='✓ Foto salva!';
+    setTimeout(()=>fecharCamCad(),800);
     return;
   }
   canvas.width=vid.videoWidth||320;canvas.height=vid.videoHeight||240;
@@ -1390,7 +1446,7 @@ function pinEnter(){
   const f=funcionarios.find(x=>x.pin===pinBuffer);
   pinBuffer='';updPinDots();
   if(f){
-    if(!f.fotoDescriptor&&!f.fotoPrev){mostrarResultado(null,'⚠ Foto não cadastrada. Contate o administrador.','',false);return;}
+    // Permite bater ponto mesmo sem foto (opcional)
     registrarPontoAuto(f,'pin');
   }else{tocarBip('err');mostrarResultado(null,'PIN inválido — tente novamente','',false);}
 }
@@ -1433,6 +1489,7 @@ function setupPinKey(d){
   }
 }
 function setupPinDel(){if(setupPinBuf.length>0){setupPinBuf=setupPinBuf.slice(0,-1);updSetupDots();}}
+function setupPinOK(){/* PIN confirmado via setupPinKey quando length===4 */}
 function limparPinSetup(){setupPinBuf='';setupPinFinal='';pinConfirming=false;updSetupDots();document.getElementById('pin-setup-hint').textContent='Digite um PIN de 4 dígitos para o funcionário';document.getElementById('pin-setup-ok').classList.add('hidden');document.getElementById('pin-dup-err').classList.add('hidden');document.getElementById('step3-badge').classList.remove('done');}
 function updSetupDots(){for(let i=0;i<4;i++)document.getElementById('spd'+i).classList.toggle('filled',i<setupPinBuf.length);}
 function checkPinDup(pin){
@@ -1553,6 +1610,177 @@ function resetKiosk(){
 // ══════════════════════════════════════════
 // DASHBOARD
 // ══════════════════════════════════════════
+
+// ══════════════════════════════════════════
+// GRÁFICOS DO DASHBOARD
+// ══════════════════════════════════════════
+let _chartSemana = null;
+let _chartSetores = null;
+
+function renderGraficos(){
+  if(typeof Chart === 'undefined') return;
+  const hoje = new Date();
+  const dias = [], presencas = [];
+  for(let i=6;i>=0;i--){
+    const d = new Date(hoje);
+    d.setDate(d.getDate()-i);
+    const ds = d.toISOString().split('T')[0];
+    dias.push(d.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit'}));
+    presencas.push(registros.filter(r=>r.data===ds&&r.entrada).length);
+  }
+
+  // Gráfico 7 dias
+  const ctx1 = document.getElementById('chart-semana');
+  if(ctx1){
+    if(_chartSemana) _chartSemana.destroy();
+    _chartSemana = new Chart(ctx1, {
+      type:'bar',
+      data:{
+        labels: dias,
+        datasets:[{
+          label:'Presenças',
+          data: presencas,
+          backgroundColor:'rgba(90,10,24,0.7)',
+          borderColor:'rgba(200,150,62,1)',
+          borderWidth:1.5,
+          borderRadius:6,
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:true,
+        plugins:{legend:{display:false}},
+        scales:{
+          y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'rgba(0,0,0,.06)'}},
+          x:{grid:{display:false}}
+        }
+      }
+    });
+  }
+
+  // Gráfico setores
+  const ctx2 = document.getElementById('chart-setores');
+  if(ctx2){
+    const setMap = {};
+    funcionarios.forEach(f=>{ setMap[f.setor]=(setMap[f.setor]||0)+1; });
+    const setLabels = Object.keys(setMap);
+    const setVals = Object.values(setMap);
+    const cores = ['#5A0A18','#C8963E','#A63040','#E8C27A','#7A1525','#F2E8E0','#2C0A10','#FBF5F0'];
+    if(_chartSetores) _chartSetores.destroy();
+    _chartSetores = new Chart(ctx2, {
+      type:'doughnut',
+      data:{
+        labels: setLabels,
+        datasets:[{data:setVals, backgroundColor:cores.slice(0,setLabels.length), borderWidth:2, borderColor:'#fff'}]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:true,
+        plugins:{legend:{position:'bottom',labels:{font:{size:11},padding:8}}}
+      }
+    });
+  }
+}
+
+// ══════════════════════════════════════════
+// NOTIFICAÇÕES DE ATRASOS E FALTAS
+// ══════════════════════════════════════════
+function verificarAtrasosFaltas(){
+  const hoje = new Date().toISOString().split('T')[0];
+  const agora_h = new Date();
+  const hora = agora_h.getHours() + agora_h.getMinutes()/60;
+  const alertas = [];
+
+  funcionarios.forEach(f=>{
+    const reg = registros.find(r=>r.fid===f.id&&r.data===hoje);
+    const jornada = parseFloat(f.jornada)||8;
+    // Falta — mais de 9h e sem registro nenhum
+    if(hora > 9 && !reg){
+      alertas.push({tipo:'falta', nome:f.nome, setor:f.setor, msg:'Sem registro até agora'});
+    }
+    // Atraso — entrada depois das 8:30 (configurável)
+    else if(reg && reg.entrada){
+      const [h,m] = reg.entrada.split(':').map(Number);
+      const entradaH = h + m/60;
+      if(entradaH > 8.5){
+        const atrasoMin = Math.round((entradaH - 8) * 60);
+        alertas.push({tipo:'atraso', nome:f.nome, setor:f.setor, msg:`Entrada às ${reg.entrada} (${atrasoMin}min de atraso)`});
+      }
+    }
+  });
+
+  // Atualiza métricas
+  const atrasos = alertas.filter(a=>a.tipo==='atraso').length;
+  const faltas  = alertas.filter(a=>a.tipo==='falta').length;
+  const mA = document.getElementById('m-atraso');
+  const mF = document.getElementById('m-falta');
+  if(mA) mA.textContent = atrasos;
+  if(mF) mF.textContent = faltas;
+
+  // Painel de notificações
+  const panel = document.getElementById('notif-panel');
+  const list  = document.getElementById('notif-list');
+  if(!panel||!list) return;
+  if(alertas.length){
+    panel.style.display='block';
+    list.innerHTML = alertas.map(a=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--borda);">
+        <span style="font-size:18px">${a.tipo==='falta'?'❌':'⏰'}</span>
+        <div>
+          <div style="font-weight:700;font-size:13px;color:var(--marrom)">${a.nome} <span style="font-weight:400;color:var(--muted)">— ${a.setor}</span></div>
+          <div style="font-size:12px;color:#8B2E20">${a.msg}</div>
+        </div>
+      </div>`).join('');
+  } else {
+    panel.style.display='none';
+  }
+}
+
+// ══════════════════════════════════════════
+// MODO QUIOSQUE
+// ══════════════════════════════════════════
+let _quiosqueAtivo = false;
+
+function toggleQuiosque(){
+  _quiosqueAtivo = !_quiosqueAtivo;
+  document.body.classList.toggle('kiosk-mode', _quiosqueAtivo);
+  const btn = document.getElementById('btn-quiosque');
+  if(btn) btn.textContent = _quiosqueAtivo ? '✖ Sair quiosque' : '⬛ Quiosque';
+  if(_quiosqueAtivo){
+    showTab('bater');
+    // Fullscreen
+    if(document.documentElement.requestFullscreen){
+      document.documentElement.requestFullscreen().catch(()=>{});
+    }
+    alerta('Modo quiosque ativado — pressione ESC para sair','info');
+  } else {
+    if(document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+  }
+}
+
+// ESC sai do quiosque
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape' && _quiosqueAtivo) toggleQuiosque();
+});
+
+// ══════════════════════════════════════════
+// AUTO-SCAN FACIAL (a cada 3s no kiosk)
+// ══════════════════════════════════════════
+let _autoScanInterval = null;
+
+function iniciarAutoScan(){
+  if(_autoScanInterval) return;
+  _autoScanInterval = setInterval(()=>{
+    if(document.getElementById('page-bater').classList.contains('hidden')) return;
+    if(document.getElementById('method-face').classList.contains('hidden')) return;
+    if(!faceModelsOK) return;
+    if(document.getElementById('kiosk-result').style.display==='block') return;
+    scanFace();
+  }, 3000);
+}
+
+function pararAutoScan(){
+  if(_autoScanInterval){ clearInterval(_autoScanInterval); _autoScanInterval=null; }
+}
+
 function renderDash(){
   const today=new Date().toISOString().split('T')[0];
   const hoje=registros.filter(r=>r.data===today);
@@ -1615,7 +1843,7 @@ function renderFunc(){
   filtrarFunc();
 }
 function filtrarFunc(){
-  const q=(document.getElementById('srch').value||'').toLowerCase();
+  const q=(document.getElementById('func-search').value||'').toLowerCase();
   const setor=document.getElementById('flt-set').value;
   const lista=funcionarios.filter(f=>(!q||f.nome.toLowerCase().includes(q)||(f.cpf||'').includes(q))&&(!setor||f.setor===setor));
   const tb=document.getElementById('func-tb');
@@ -1653,8 +1881,17 @@ function salvarFunc(){
 
   if(!nome||!setor){vmsg.textContent='Nome e setor são obrigatórios.';return;}
 
-  // Verificar foto
-  const temFoto=!!window._tempFotoDescriptor||!!(funcionarios.find(f=>f.id===parseInt(document.getElementById('edit-id').value))?.fotoDescriptor);
+  // Verificar foto — aceita com ou sem descriptor (fallback sem IA)
+  const eidCheck=parseInt(document.getElementById('edit-id').value)||0;
+  const funcExist=funcionarios.find(f=>f.id===eidCheck);
+  // Verifica foto — múltiplas formas de ter foto salva
+  const prevEl=document.getElementById('foto-preview');
+  const temFotoPreview = !!(prevEl && prevEl.src && prevEl.src!==window.location.href && prevEl.style.display!=='none');
+  const temFoto = !!window._tempFotoDataUrl
+    || !!window._tempFotoDescriptor
+    || !!(funcExist?.fotoPrev)
+    || !!(funcExist?.fotoDescriptor)
+    || temFotoPreview;
   if(!temFoto){vmsg.textContent='⚠ Foto obrigatória. Tire uma foto do funcionário antes de salvar.';return;}
 
   // Verificar PIN
@@ -1666,26 +1903,37 @@ function salvarFunc(){
   if(eid){
     const f=funcionarios.find(x=>x.id===eid);
     if(f){
-      Object.assign(f,{nome,setor,pin:pinFinal,nasc:document.getElementById('f-nasc').value,cpf:document.getElementById('f-cpf').value,tel:document.getElementById('f-tel').value,obs:document.getElementById('f-obs').value});
-      if(window._tempFotoDescriptor){f.fotoDescriptor=window._tempFotoDescriptor;f.fotoPrev=window._tempFotoDataUrl;}
+      const jornada=parseFloat(document.getElementById('f-jornada')?.value)||8;
+      Object.assign(f,{nome,setor,pin:pinFinal,jornada,nasc:document.getElementById('f-nasc').value,cpf:document.getElementById('f-cpf').value,tel:document.getElementById('f-tel').value,obs:document.getElementById('f-obs').value});
+      // Salva foto — usa _temp se disponível, ou o src do preview
+      const fotoSrc = window._tempFotoDataUrl || (prevEl&&prevEl.src&&prevEl.src.startsWith('data:')?prevEl.src:null);
+      if(fotoSrc){f.fotoPrev=fotoSrc;}
+      if(window._tempFotoDescriptor){f.fotoDescriptor=window._tempFotoDescriptor;}
     }
     alerta('Funcionário atualizado com sucesso!','ok');
     document.getElementById('bio-cad-btn').disabled=false;
     document.getElementById('bio-cad-st').textContent='Clique para cadastrar a digital.';
   }else{
-    const newF={id:Date.now(),nome,setor,pin:pinFinal,nasc:document.getElementById('f-nasc').value,cpf:document.getElementById('f-cpf').value,tel:document.getElementById('f-tel').value,obs:document.getElementById('f-obs').value,bioId:null,fotoDescriptor:window._tempFotoDescriptor||null,fotoPrev:window._tempFotoDataUrl||null};
+    const jornada2=parseFloat(document.getElementById('f-jornada')?.value)||8;
+    const newF={id:Date.now(),nome,setor,pin:pinFinal,jornada:jornada2,nasc:document.getElementById('f-nasc').value,cpf:document.getElementById('f-cpf').value,tel:document.getElementById('f-tel').value,obs:document.getElementById('f-obs').value,bioId:null,fotoDescriptor:window._tempFotoDescriptor||null,fotoPrev:window._tempFotoDataUrl||(prevEl&&prevEl.src&&prevEl.src.startsWith('data:')?prevEl.src:null)};
     funcionarios.push(newF);
     document.getElementById('edit-id').value=newF.id;
     alerta('Funcionário cadastrado! Pode cadastrar a digital agora se desejar.','ok');
     document.getElementById('bio-cad-btn').disabled=false;
     document.getElementById('bio-cad-st').textContent='Clique para cadastrar a digital.';
   }
-  window._tempFotoDescriptor=null;window._tempFotoDataUrl=null;
-  save();renderFunc();
+  // Salvar dados ANTES de limpar variáveis temporárias
+  save();
+  renderFunc();
+  editingFid=null;
+  window._tempFotoDescriptor=null;
+  window._tempFotoDataUrl=null;
+  setTimeout(()=>limparForm(),300);
 }
 
 function editarFunc(id){
   const f=funcionarios.find(x=>x.id===id);if(!f)return;
+  editingFid=id;
   document.getElementById('edit-id').value=id;
   document.getElementById('f-nome').value=f.nome;
   document.getElementById('f-setor').value=f.setor;
@@ -1717,6 +1965,10 @@ function editarFunc(id){
   if(f.bioId)document.getElementById('bio-cad-ok').classList.remove('hidden');
   document.getElementById('step1-badge').classList.add('done');
   showTab('cadastro');
+  setTimeout(()=>{
+    const el=document.getElementById('form-title');
+    if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  }, 200);
 }
 function excluirFunc(id){
   if(!confirm('Excluir este funcionário?'))return;
@@ -1724,7 +1976,10 @@ function excluirFunc(id){
   save();renderFunc();alerta('Excluído.','ok');
 }
 function limparForm(){
+  editingFid=null;
   ['f-nome','f-setor','f-cpf','f-tel','f-obs'].forEach(i=>document.getElementById(i).value='');
+  const fpin=document.getElementById('f-pin');if(fpin)fpin.value='';
+  const fjornada=document.getElementById('f-jornada');if(fjornada)fjornada.value='8';
   document.getElementById('f-nasc').value='';
   document.getElementById('edit-id').value='';
   document.getElementById('form-title').textContent='Novo funcionário';
@@ -1741,7 +1996,8 @@ function limparForm(){
   document.getElementById('cad-validation-msg').textContent='';
   ['step1-badge','step2-badge','step3-badge','step4-badge'].forEach(id=>{document.getElementById(id).classList.remove('done');});
   setupPinBuf='';setupPinFinal='';pinConfirming=false;updSetupDots();
-  window._tempFotoDescriptor=null;window._tempFotoDataUrl=null;
+  window._tempFotoDescriptor=null;
+  window._tempFotoDataUrl=null;
   fecharCamCad();
 }
 
