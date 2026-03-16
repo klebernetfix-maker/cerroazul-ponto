@@ -420,7 +420,7 @@ to{opacity:0;transform:translateY(-8px);}}
   <div class="hdr-right">
     <div class="hdr-clock" id="clock"></div>
     <span id="header-perfil" class="nav-perfil-badge" style="display:none"></span>
-    <button class="logout-btn" onclick="fazerLogout()" title="Sair do sistema">
+    <button id="logout-btn" class="logout-btn" onclick="fazerLogout()" title="Sair do sistema">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
         <polyline points="16 17 21 12 16 7"/>
@@ -1546,23 +1546,8 @@ function limparForm(){
   fecharCamCad();
 }
 
-// ══════════════════════════════════════════
-// ADMINS
-// ══════════════════════════════════════════
-function renderAdmins(){
-  const list=document.getElementById('admin-list');
-  list.innerHTML=admins.map(a=>`
-    <div class="admin-list-item">
-      <div>
-        <strong>${a.nome}</strong>
-        <span style="font-size:12px;color:var(--muted);margin-left:10px">operador: ${a.login}</span>
-      </div>
-      <div style="display:flex;gap:8px;">
-        ${admins.length>1?`<button class="btn-del" onclick="excluirAdmin(${a.id})">Excluir</button>`:''}
-      </div>
-    </div>`).join('');
-}
-function mostrarFormAdmin(){
+
+function mostrarFormOperador(){
   document.getElementById('admin-form-card').classList.remove('hidden');
   document.getElementById('admin-form-title').textContent='Novo administrador';
   document.getElementById('admin-edit-id').value='';
@@ -1795,13 +1780,6 @@ function limparEmpresa(){
 }
 
 // Preenche form ao abrir aba
-const _origRenderAdmins = renderAdmins;
-function renderAdmins(){
-  _origRenderAdmins();
-  preencherFormEmpresa();
-}
-
-
 // ══════════════════════════════════════════
 // LOGIN + PERMISSÕES
 // ══════════════════════════════════════════
@@ -2044,8 +2022,7 @@ function editarAdmin(id){
 }
 
 // Override renderAdmins to show new operator cards
-const _origRenderAdmins2 = typeof _origRenderAdmins !== 'undefined' ? _origRenderAdmins : renderAdmins;
-renderAdmins = function(){
+function renderAdmins(){
   preencherFormEmpresa&&preencherFormEmpresa();
   const list=document.getElementById('admin-list');
   if(!list)return;
