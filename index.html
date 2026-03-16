@@ -1004,7 +1004,27 @@ body.kiosk-mode .cam-video { width: 320px; height: 240px; }
 
 <div id="session-timer">⏰ Sessão expira em <span id="timer-count">5:00</span></div>
 
-  
+<div class="main">
+<div id="alert-area"></div>
+
+<!-- BATER PONTO -->
+<div id="page-bater">
+  <div class="kiosk-wrap">
+    <div class="kiosk-card">
+      <div class="kiosk-title">Registrar Ponto</div>
+      <div class="kiosk-sub">Identifique-se para registrar sua entrada ou saída</div>
+      <div class="method-tabs">
+        <button class="mtab active" id="mtab-face" onclick="switchMethod('face')">Rosto</button>
+        <button class="mtab"        id="mtab-pin"  onclick="switchMethod('pin')">PIN</button>
+        <button class="mtab"        id="mtab-bio"  onclick="switchMethod('bio')">Digital</button>
+      </div>
+
+      <!-- FACIAL -->
+      <div id="method-face">
+        <div class="cam-wrap">
+          <video id="cam-video" class="cam-video" autoplay playsinline muted></video>
+        </div>
+        <div class="cam-status" id="cam-status">Iniciando câmera...</div>
         <div id="face-model-msg" style="font-size:12px;color:var(--muted);margin-bottom:.5rem">Carregando IA facial...</div>
         <button class="btn btn-dk" id="btn-scan-face" onclick="scanFace()">🔍 Reconhecer rosto</button>
         <div style="font-size:11px;color:var(--muted);margin-top:.5rem;">ou aguarde o reconhecimento automático</div>
